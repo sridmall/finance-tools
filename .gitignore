@@ -1,0 +1,10 @@
+# Generated report (re-run make to regenerate)
+portfolio_report.md
+
+# Excel holdings file (personal financial data — do not commit)
+*.xlsx
+
+# Python
+__pycache__/
+*.pyc
+.venv/
