@@ -1,8 +1,60 @@
 import openpyxl
 import difflib
 import os
+import re
+import glob
+from datetime import datetime
 
-EXCEL_FILE = os.path.join(os.path.dirname(__file__), "Stocks_Holdings_Statement_6610532163_23-03-2026.xlsx")
+
+def resolve_latest_holdings_file(directory):
+    """
+    Scans directory for Stocks_Holdings_Statement_*.xlsx files.
+    Parses the DD-MM-YYYY date embedded in each filename, keeps the latest,
+    and deletes older files. Returns the path to the latest file.
+    Raises FileNotFoundError if no matching files are found.
+    """
+    pattern = os.path.join(directory, "Stocks_Holdings_Statement_*.xlsx")
+    candidates = glob.glob(pattern)
+
+    if not candidates:
+        raise FileNotFoundError(
+            f"No holdings file found matching pattern: {pattern}\n"
+            "Please export your holdings from Groww and place the .xlsx file in:\n"
+            f"  {directory}"
+        )
+
+    dated = []
+    for path in candidates:
+        name = os.path.basename(path)
+        match = re.search(r"(\d{2}-\d{2}-\d{4})\.xlsx$", name)
+        if match:
+            try:
+                date = datetime.strptime(match.group(1), "%d-%m-%Y")
+                dated.append((date, path))
+            except ValueError:
+                pass
+
+    if not dated:
+        raise FileNotFoundError(
+            "Found .xlsx files but none matched the expected date pattern "
+            "(DD-MM-YYYY) in the filename."
+        )
+
+    dated.sort(key=lambda x: x[0], reverse=True)
+    latest_date, latest_path = dated[0]
+
+    older = dated[1:]
+    if older:
+        print(f"Found {len(dated)} holdings file(s). Using latest: {os.path.basename(latest_path)}")
+        for _, old_path in older:
+            os.remove(old_path)
+            print(f"  [CLEANUP] Deleted older file: {os.path.basename(old_path)}")
+    
+    return latest_path
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+EXCEL_FILE = resolve_latest_holdings_file(SCRIPT_DIR)
 
 holdings = [
     {"symbol": "PROTEAN",   "title": "Protean e-Gov Technologies Ltd.",               "excelStockName": "PROTEAN EGOV TECHNO LTD",       "cap": "Small Cap", "sector": "Other",                          "subsector": "e-Governance"},
@@ -278,7 +330,7 @@ all_stocks_sorted = sorted(
 lines = []
 lines.append("# Portfolio Asset Allocation Analysis Report")
 lines.append(f"**Report Date:** 24 March 2026  ")
-lines.append(f"**Data Source:** Groww Portfolio  ")
+lines.append(f"**Data Source:** `{os.path.basename(EXCEL_FILE)}`  ")
 lines.append(f"**Calculation Basis:** Invested Value (Qty x Avg Buy Price)  ")
 lines.append("")
 lines.append("---")
