@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Quarterly Earnings & Concall Analysis</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <header class="toolbar">
+            <div class="toolbar__brand">
+                Quarterly Earnings &amp; Concall Analysis
+            </div>
+            <div class="toolbar__controls">
+                <label for="company-select" class="muted">Company:</label>
+                <select
+                    id="company-select"
+                    class="toolbar__select"
+                    aria-label="Select company"
+                ></select>
+
+                <label for="quarter-select" class="muted">Quarter:</label>
+                <select
+                    id="quarter-select"
+                    class="toolbar__select"
+                    aria-label="Select quarter"
+                ></select>
+
+                <button
+                    type="button"
+                    id="print-btn"
+                    class="toolbar__btn toolbar__btn--primary"
+                    title="Save report as PDF via browser print dialog"
+                >
+                    Print / Save PDF
+                </button>
+            </div>
+        </header>
+
+        <main class="report" id="report-root">
+            <!-- Rendered dynamically by app.js -->
+        </main>
+
+        <!--
+            Data discovery:
+              • data/manifest.js lists every analysed company together with
+                the quarters available for it (drives both dropdowns).
+              • The matching data file at data/<TICKER>/<QUARTER>.js is
+                loaded on demand when the user picks a quarter.
+            See data/_template.js for the schema and README.md for usage.
+        -->
+        <script src="data/manifest.js"></script>
+        <script src="app.js"></script>
+    </body>
+</html>

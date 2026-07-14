@@ -8,3 +8,5 @@ assetclass_sector_allocation_report.md
 __pycache__/
 *.pyc
 .venv/
+.pylibs/
+.vscode/
